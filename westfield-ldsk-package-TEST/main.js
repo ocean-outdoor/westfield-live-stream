@@ -45,7 +45,7 @@ function initCreative() {
     videoElement.autoplay = true;
     videoElement.playsInline = true;
     videoElement.loop = false;
-    videoElement.controls = true; // Add controls for debugging
+    videoElement.controls = false; // Hide controls
 
     // Append to container
     videoContainer.appendChild(videoElement);
