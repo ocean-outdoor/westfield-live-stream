@@ -70,6 +70,24 @@ body {
     object-fit: cover;
 }
 
+/* Hide subtitles/captions */
+.live-stream::cue {
+    display: none !important;
+}
+
+video::cue {
+    display: none !important;
+}
+
+/* Hide WebVTT text tracks */
+.live-stream::-webkit-media-text-track-container {
+    display: none !important;
+}
+
+.live-stream::-webkit-media-text-track-display {
+    display: none !important;
+}
+
 /*
  * ALTERNATIVE LAYOUTS:
  *

@@ -48,6 +48,22 @@ function initCreative() {
     // Append to container
     videoContainer.appendChild(videoElement);
 
+    // Disable all text tracks (subtitles/captions)
+    function disableTextTracks() {
+        if (videoElement.textTracks) {
+            for (let i = 0; i < videoElement.textTracks.length; i++) {
+                videoElement.textTracks[i].mode = 'hidden';
+            }
+        }
+    }
+
+    // Disable text tracks initially and whenever they're added
+    videoElement.addEventListener('loadedmetadata', disableTextTracks);
+    videoElement.addEventListener('addtrack', disableTextTracks);
+
+    // Monitor for text tracks being enabled and disable them
+    setInterval(disableTextTracks, 500);
+
     console.log('Video element created');
 
     // Check if HLS.js is supported and needed
