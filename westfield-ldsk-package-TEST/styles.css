@@ -84,6 +84,10 @@ body {
     height: 80%; /* Adjust based on your frame */
 
     overflow: hidden;
+
+    /* DEBUG: Visual border to see container (remove for production) */
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Live stream video element */

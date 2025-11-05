@@ -53,6 +53,30 @@ function initCreative() {
 
     console.log('Video element created with source:', LIVE_STREAM_URL);
 
+    // Auto-play for browser testing (fallback if no LDSK player)
+    // This will attempt to play after video metadata loads
+    videoElement.addEventListener('loadedmetadata', () => {
+        console.log('Video metadata loaded, attempting auto-play...');
+        videoElement.play()
+            .then(() => {
+                console.log('✅ Video playing successfully');
+            })
+            .catch(error => {
+                console.warn('Auto-play failed (waiting for LDSK PLAY event):', error.message);
+            });
+    });
+
+    // Handle video errors
+    videoElement.addEventListener('error', (e) => {
+        console.error('❌ Video error:', e);
+        if (videoElement.error) {
+            console.error('Error details:', {
+                code: videoElement.error.code,
+                message: videoElement.error.message
+            });
+        }
+    });
+
     // Notify LDSK player that creative is ready
     postMessageToParent(EVENTS.CREATIVE_READY);
 }
