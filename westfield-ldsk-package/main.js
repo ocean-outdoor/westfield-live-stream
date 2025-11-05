@@ -45,26 +45,74 @@ function initCreative() {
     videoElement.playsInline = true;
     videoElement.loop = false;
 
-    // Set the live stream URL
-    videoElement.src = LIVE_STREAM_URL;
-
     // Append to container
     videoContainer.appendChild(videoElement);
 
-    console.log('Video element created with source:', LIVE_STREAM_URL);
+    console.log('Video element created');
 
-    // Auto-play for browser testing (fallback if no LDSK player)
-    // This will attempt to play after video metadata loads
-    videoElement.addEventListener('loadedmetadata', () => {
-        console.log('Video metadata loaded, attempting auto-play...');
-        videoElement.play()
-            .then(() => {
-                console.log('✅ Video playing successfully');
-            })
-            .catch(error => {
-                console.warn('Auto-play failed (waiting for LDSK PLAY event):', error.message);
-            });
-    });
+    // Check if HLS.js is supported and needed
+    if (Hls.isSupported()) {
+        // Use HLS.js for browsers that don't support HLS natively (Chrome, Firefox, etc.)
+        console.log('Using HLS.js for stream playback');
+        const hls = new Hls({
+            debug: false, // Disable debug logs in production
+            enableWorker: true,
+            lowLatencyMode: false,
+        });
+
+        hls.loadSource(LIVE_STREAM_URL);
+        hls.attachMedia(videoElement);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log('HLS manifest parsed, attempting playback...');
+            videoElement.play()
+                .then(() => {
+                    console.log('✅ Video playing successfully with HLS.js');
+                })
+                .catch(error => {
+                    console.warn('Auto-play failed:', error.message);
+                });
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+            console.error('❌ HLS.js error:', data.type, data.details);
+            if (data.fatal) {
+                switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        console.error('Fatal network error, trying to recover...');
+                        hls.startLoad();
+                        break;
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        console.error('Fatal media error, trying to recover...');
+                        hls.recoverMediaError();
+                        break;
+                    default:
+                        console.error('Fatal error, cannot recover');
+                        hls.destroy();
+                        break;
+                }
+            }
+        });
+    }
+    // For Safari or browsers with native HLS support
+    else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        console.log('Using native HLS support');
+        videoElement.src = LIVE_STREAM_URL;
+
+        videoElement.addEventListener('loadedmetadata', () => {
+            console.log('Video metadata loaded, attempting auto-play...');
+            videoElement.play()
+                .then(() => {
+                    console.log('✅ Video playing successfully');
+                })
+                .catch(error => {
+                    console.warn('Auto-play failed:', error.message);
+                });
+        });
+    }
+    else {
+        console.error('❌ HLS is not supported in this browser');
+    }
 
     // Handle video errors
     videoElement.addEventListener('error', (e) => {
