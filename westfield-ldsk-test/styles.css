@@ -1,0 +1,67 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 640px;
+    height: 1280px;
+    overflow: hidden;
+    position: relative;
+    background-color: #000;
+}
+
+/* Video container - fullscreen */
+#video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Video element */
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Hide video controls */
+video::-webkit-media-controls {
+    display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+    display: none !important;
+}
+
+/* Hide subtitles/captions */
+video::cue {
+    display: none !important;
+}
+
+video::-webkit-media-text-track-container {
+    display: none !important;
+}
+
+video::-webkit-media-text-track-display {
+    display: none !important;
+}
+
+/* Frame overlay */
+#frame-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    background-image: url('assets/branding.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
