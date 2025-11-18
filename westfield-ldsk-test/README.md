@@ -39,10 +39,11 @@ height: 1280px; /* Your screen height */
 
 - ✅ Fullscreen video with cover fit
 - ✅ Frame overlay on top
-- ✅ HLS stream support (Chrome, Firefox, Safari)
+- ✅ Native HLS stream support (Samsung Tizen screens)
 - ✅ Auto-hide subtitles/captions
 - ✅ No video controls
 - ✅ LDSK player communication
+- ✅ No external dependencies (all local files)
 - ✅ Optimized for 640x1280 (portrait)
 
 ## Test Stream

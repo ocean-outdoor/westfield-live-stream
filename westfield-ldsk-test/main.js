@@ -9,7 +9,6 @@ const EVENTS = {
 };
 
 let videoElement = null;
-let hls = null;
 
 // Send message to LDSK player
 function sendToPlayer(eventType, payload = {}) {
@@ -38,6 +37,7 @@ function initVideo() {
     videoElement.autoplay = true;
     videoElement.playsInline = true;
     videoElement.controls = false;
+    videoElement.src = STREAM_URL;
 
     container.appendChild(videoElement);
 
@@ -46,37 +46,15 @@ function initVideo() {
     videoElement.addEventListener('addtrack', disableTextTracks);
     setInterval(disableTextTracks, 500);
 
-    // Setup HLS
-    if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(STREAM_URL);
-        hls.attachMedia(videoElement);
+    // Auto-play when ready
+    videoElement.addEventListener('loadedmetadata', () => {
+        videoElement.play().catch(e => console.warn('Autoplay failed:', e));
+    });
 
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            videoElement.play().catch(e => console.warn('Autoplay failed:', e));
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) {
-                switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        hls.startLoad();
-                        break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        hls.recoverMediaError();
-                        break;
-                    default:
-                        hls.destroy();
-                        break;
-                }
-            }
-        });
-    } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-        videoElement.src = STREAM_URL;
-        videoElement.addEventListener('loadedmetadata', () => {
-            videoElement.play().catch(e => console.warn('Autoplay failed:', e));
-        });
-    }
+    // Handle errors
+    videoElement.addEventListener('error', (e) => {
+        console.error('Video error:', e);
+    });
 
     sendToPlayer(EVENTS.CREATIVE_READY);
 }
