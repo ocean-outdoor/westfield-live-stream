@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Westfield Live Stream - Layout Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="video-container">
+        <!-- Animated placeholder for testing layout -->
+        <div class="video-placeholder"></div>
+    </div>
+    <div id="frame-overlay"></div>
+
+    <style>
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradient 8s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .video-placeholder::before {
+            content: 'VIDEO STREAM WILL PLAY HERE';
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 28px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</body>
+</html>
