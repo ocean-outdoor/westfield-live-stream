@@ -1,5 +1,7 @@
 // Configuration
-const STREAM_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+// For local testing: Using MP4 (works in all browsers)
+// For LDSK production: Replace with your HLS stream URL (.m3u8)
+const STREAM_URL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
 // LDSK Events
 const EVENTS = {
@@ -37,6 +39,7 @@ function initVideo() {
     videoElement.autoplay = true;
     videoElement.playsInline = true;
     videoElement.controls = false;
+    videoElement.loop = true; // Loop for testing
     videoElement.src = STREAM_URL;
 
     container.appendChild(videoElement);
