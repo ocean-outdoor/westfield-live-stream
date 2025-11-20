@@ -44,8 +44,10 @@ All LDSK creatives communicate with the player using the **postMessage API**. Th
 1. **Player → Creative**: `PLAYER_CONFIGURATION` event (contains inventory/location data)
 2. **Creative → Player**: Process configuration, optionally send `MEDIA_REQUEST` for cached assets
 3. **Player → Creative**: `MEDIA_RESPONSE` with local URLs (if media caching requested)
-4. **Player → Creative**: `PLAY` event (signals exact playback start time)
-5. **Creative → Player**: `CREATIVE_READY` event (signals creative is initialized)
+4. **Creative → Player**: `CREATIVE_READY` event (signals creative is initialized)
+5. **Player → Creative**: `PLAY` event (signals exact playback start time)
+
+**CRITICAL**: Creatives must NOT autoplay content. Video/audio playback should only begin when the `PLAY` event is received from the player. Load and prepare media during initialization, send `CREATIVE_READY` when ready, then wait for `PLAY` before starting playback.
 
 ### Message Format
 
@@ -97,13 +99,15 @@ westfield-ldsk-test/
 
 **Key implementation details (main.js:33-82)**:
 
-1. **Programmatic video creation**: The `<video>` element is created via JavaScript (`document.createElement('video')`) rather than in HTML markup. This is critical for Samsung Tizen screen compatibility (see Samsung Tizen note below).
+1. **Programmatic video creation**: The `<video>` element is created via JavaScript (`document.createElement('video')`) with `autoplay = false`. This is critical for Samsung Tizen screen compatibility (see Samsung Tizen note below).
 
-2. **HLS.js integration**: Uses HLS.js library for cross-browser HLS stream support with fallback to native HLS for Safari.
+2. **LDSK event flow**: Video loads and prepares, sends `CREATIVE_READY` when manifest is parsed, but does NOT play until `PLAY` event is received from the player. This ensures proper synchronization with the LDSK platform.
 
-3. **Auto-recovery**: Implements error handlers that automatically retry network errors and recover from media errors.
+3. **HLS.js integration**: Uses HLS.js library for cross-browser HLS stream support with fallback to native HLS for Safari.
 
-4. **Subtitle/caption suppression**: Aggressively hides text tracks using event listeners and polling to ensure clean video display.
+4. **Auto-recovery**: Implements error handlers that automatically retry network errors and recover from media errors.
+
+5. **Subtitle/caption suppression**: Aggressively hides text tracks using event listeners and polling to ensure clean video display.
 
 ### Sample Projects Architecture
 
