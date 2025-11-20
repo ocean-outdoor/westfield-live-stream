@@ -35,7 +35,7 @@ function initVideo() {
 
     videoElement = document.createElement('video');
     videoElement.muted = true;
-    videoElement.autoplay = true;
+    videoElement.autoplay = false;
     videoElement.playsInline = true;
     videoElement.controls = false;
 
@@ -53,7 +53,8 @@ function initVideo() {
         hls.attachMedia(videoElement);
 
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            videoElement.play().catch(e => console.warn('Autoplay failed:', e));
+            console.log('HLS manifest parsed, ready to play');
+            sendToPlayer(EVENTS.CREATIVE_READY);
         });
 
         hls.on(Hls.Events.ERROR, (event, data) => {
@@ -74,11 +75,10 @@ function initVideo() {
     } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
         videoElement.src = STREAM_URL;
         videoElement.addEventListener('loadedmetadata', () => {
-            videoElement.play().catch(e => console.warn('Autoplay failed:', e));
+            console.log('Video metadata loaded, ready to play');
+            sendToPlayer(EVENTS.CREATIVE_READY);
         });
     }
-
-    sendToPlayer(EVENTS.CREATIVE_READY);
 }
 
 // Handle LDSK player messages
