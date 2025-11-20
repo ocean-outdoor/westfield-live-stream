@@ -1,0 +1,20 @@
+{
+  "name": "westfield-ldsk-livestream",
+  "version": "1.0.0",
+  "description": "Westfield live stream creative for LDSK platform with Big Buck Bunny test stream",
+  "main": "main.js",
+  "scripts": {
+    "start": "http-server -c-1 -p 8080 -o player-simulator.html"
+  },
+  "keywords": [
+    "ldsk",
+    "digital-signage",
+    "hls",
+    "livestream"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LDSK Player Simulator - Westfield Live Stream</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        iframe {
+            width: 640px;
+            height: 1280px;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .log {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+
+        .log-entry {
+            padding: 5px;
+            margin-bottom: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            border-left: 3px solid #007bff;
+            padding-left: 10px;
+        }
+
+        .log-entry.sent {
+            border-left-color: #28a745;
+        }
+
+        .log-entry.received {
+            border-left-color: #ffc107;
+        }
+    </style>
+
+    <script>
+        let logContainer;
+
+        function log(message, type = 'info') {
+            console.log(message);
+            if (logContainer) {
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${JSON.stringify(message, null, 2)}`;
+                logContainer.appendChild(entry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+
+        window.addEventListener("load", function () {
+            logContainer = document.getElementById('log-messages');
+            log('Player simulator loaded', 'info');
+
+            // Listen for messages from the creative
+            if (window.addEventListener) {
+                window.addEventListener("message", receiveMessage);
+            } else {
+                window.attachEvent("onmessage", receiveMessage);
+            }
+        });
+
+        function receiveMessage(event) {
+            if (event.data && event.data.type === 'ldsk') {
+                log(`Received from creative: ${event.data.eventType}`, 'received');
+
+                // Handle CREATIVE_READY event
+                if (event.data.eventType === 'CREATIVE_READY') {
+                    log('Creative is ready!', 'info');
+                }
+            }
+        }
+
+        // Send message to iframe via postMessage
+        function sendPostMessage(message, iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(message, "*");
+                log(`Sent to creative: ${message.eventType}`, 'sent');
+            }
+        }
+
+        function initFunc() {
+            log('Initializing creative...', 'info');
+
+            // Send PLAYER_CONFIGURATION event
+            sendPostMessage(
+                {
+                    type: "ldsk",
+                    eventType: "PLAYER_CONFIGURATION",
+                    payload: {
+                        inventory: {
+                            attributes: {
+                                screenId: "westfield-screen-001",
+                                location: "Westfield Shopping Centre",
+                                city: "London",
+                                width: 640,
+                                height: 1280
+                            }
+                        }
+                    }
+                },
+                "creative-iframe"
+            );
+
+            // Send PLAY event after 3 seconds
+            setTimeout(() => {
+                sendPostMessage(
+                    {
+                        type: "ldsk",
+                        eventType: "PLAY",
+                        payload: {}
+                    },
+                    "creative-iframe"
+                );
+            }, 3000);
+        }
+
+        function manualPlay() {
+            sendPostMessage(
+                {
+                    type: "ldsk",
+                    eventType: "PLAY",
+                    payload: {}
+                },
+                "creative-iframe"
+            );
+        }
+
+        function reloadCreative() {
+            const iframe = document.getElementById("creative-iframe");
+            iframe.src = iframe.src;
+            if (logContainer) {
+                logContainer.innerHTML = '';
+            }
+            log('Creative reloaded', 'info');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <iframe id="creative-iframe" src="index.html" onload="initFunc()"></iframe>
+
+        <div class="controls">
+            <h2>Player Controls</h2>
+            <button onclick="manualPlay()">Send PLAY Event</button>
+            <button onclick="reloadCreative()">Reload Creative</button>
+        </div>
+
+        <div class="log">
+            <h2>Event Log</h2>
+            <div id="log-messages"></div>
+        </div>
+    </div>
+</body>
+</html>
