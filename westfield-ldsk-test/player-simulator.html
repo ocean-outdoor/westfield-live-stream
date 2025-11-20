@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <html>
+
 <head>
     <title>LDSK Player Simulator - Westfield Live Stream</title>
     <style>
@@ -7,102 +7,20 @@
             display: flex;
             flex-direction: row;
             align-items: flex-start;
-            justify-content: center;
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            background-color: #000;
         }
 
         iframe {
             width: 640px;
             height: 1280px;
-            border: 2px solid #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .controls {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .controls h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 14px;
-            margin-right: 10px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .log {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .log h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-        }
-
-        .log-entry {
-            padding: 5px;
-            margin-bottom: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            border-left: 3px solid #007bff;
-            padding-left: 10px;
-        }
-
-        .log-entry.sent {
-            border-left-color: #28a745;
-        }
-
-        .log-entry.received {
-            border-left-color: #ffc107;
+            border: 0;
         }
     </style>
 
     <script>
-        let logContainer;
-
-        function log(message, type = 'info') {
-            console.log(message);
-            if (logContainer) {
-                const entry = document.createElement('div');
-                entry.className = `log-entry ${type}`;
-                entry.textContent = `[${new Date().toLocaleTimeString()}] ${JSON.stringify(message, null, 2)}`;
-                logContainer.appendChild(entry);
-                logContainer.scrollTop = logContainer.scrollHeight;
-            }
-        }
-
         window.addEventListener("load", function () {
-            logContainer = document.getElementById('log-messages');
-            log('Player simulator loaded', 'info');
+            console.log('Player simulator loaded');
 
             // Listen for messages from the creative
             if (window.addEventListener) {
@@ -113,12 +31,13 @@
         });
 
         function receiveMessage(event) {
-            if (event.data && event.data.type === 'ldsk') {
-                log(`Received from creative: ${event.data.eventType}`, 'received');
+            console.log('Received message from creative:', event.data);
 
-                // Handle CREATIVE_READY event
+            if (event.data && event.data.type === 'ldsk') {
+                console.log(`Event type: ${event.data.eventType}`);
+
                 if (event.data.eventType === 'CREATIVE_READY') {
-                    log('Creative is ready!', 'info');
+                    console.log('Creative is ready!');
                 }
             }
         }
@@ -128,12 +47,14 @@
             const iframe = document.getElementById(iframeId);
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage(message, "*");
-                log(`Sent to creative: ${message.eventType}`, 'sent');
+                console.log('Sent to creative:', message);
+            } else {
+                console.error('Failed to send message - iframe not found');
             }
         }
 
         function initFunc() {
-            log('Initializing creative...', 'info');
+            console.log('Initializing creative...');
 
             // Send PLAYER_CONFIGURATION event
             sendPostMessage(
@@ -152,10 +73,10 @@
                         }
                     }
                 },
-                "creative-iframe"
+                "westfield-iframe"
             );
 
-            // Send PLAY event after 3 seconds
+            // Send PLAY event after 5 seconds
             setTimeout(() => {
                 sendPostMessage(
                     {
@@ -163,47 +84,15 @@
                         eventType: "PLAY",
                         payload: {}
                     },
-                    "creative-iframe"
+                    "westfield-iframe"
                 );
-            }, 3000);
-        }
-
-        function manualPlay() {
-            sendPostMessage(
-                {
-                    type: "ldsk",
-                    eventType: "PLAY",
-                    payload: {}
-                },
-                "creative-iframe"
-            );
-        }
-
-        function reloadCreative() {
-            const iframe = document.getElementById("creative-iframe");
-            iframe.src = iframe.src;
-            if (logContainer) {
-                logContainer.innerHTML = '';
-            }
-            log('Creative reloaded', 'info');
+            }, 5000);
         }
     </script>
 </head>
 
 <body>
-    <div class="container">
-        <iframe id="creative-iframe" src="index.html" onload="initFunc()"></iframe>
-
-        <div class="controls">
-            <h2>Player Controls</h2>
-            <button onclick="manualPlay()">Send PLAY Event</button>
-            <button onclick="reloadCreative()">Reload Creative</button>
-        </div>
-
-        <div class="log">
-            <h2>Event Log</h2>
-            <div id="log-messages"></div>
-        </div>
-    </div>
+    <iframe id="westfield-iframe" src="index.html" onload="initFunc()"></iframe>
 </body>
+
 </html>

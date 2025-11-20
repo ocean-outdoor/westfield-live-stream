@@ -8,9 +8,21 @@ This repository contains HTML5 creative packages for the **LiveDOOH Signkick (LD
 
 ## Development Commands
 
+### Testing Westfield Package
+
+The Westfield package includes a player simulator for local testing:
+
+```bash
+cd westfield-ldsk-test
+npm install
+npm start  # Opens player-simulator.html at http://localhost:8080
+```
+
+The player simulator loads `index.html` in an iframe and simulates LDSK player events. Watch the browser console to see postMessage communication (PLAYER_CONFIGURATION sent immediately, PLAY sent after 5 seconds).
+
 ### Testing Sample Creatives
 
-The sample projects include a player simulator for local testing:
+The sample projects also include player simulators:
 
 ```bash
 # Navigate to either sample project
@@ -22,21 +34,6 @@ cd ldsk-dynamic-samples-main/optimized-with-caching
 npm install
 npm start  # Opens player-simulator.html at http://localhost:8080
 ```
-
-The player simulator loads `index.html` in an iframe and simulates LDSK player events. Watch the browser console to see postMessage communication.
-
-### Testing Westfield Package
-
-The Westfield package has no build process but can be tested with any HTTP server:
-
-```bash
-cd westfield-ldsk-test
-# Use any static server, e.g.:
-python3 -m http.server 8080
-# Then open index.html in a browser
-```
-
-Note: The Westfield package expects to run within an LDSK player or requires manual postMessage simulation for full functionality.
 
 ## LDSK Platform Architecture
 
